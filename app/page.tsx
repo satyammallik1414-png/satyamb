@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { FastForward, CheckCircle2, RotateCcw, Sparkles, Film, Grid, Target, Lock } from "lucide-react";
 import { HeartParticles } from "@/components/fx/HeartParticles";
+import { BirthdayBloomParticles } from "@/components/fx/BirthdayBloomParticles";
 import { SoundController } from "@/components/audio/SoundController";
 import { Header } from "@/components/dashboard/Header";
 import { TaskGrid } from "@/components/dashboard/TaskGrid";
@@ -167,6 +168,7 @@ export default function Home() {
     <main className="min-h-screen bg-[#FFF0F5] text-[#4A0E17] relative flex flex-col font-sans overflow-x-hidden">
       {/* Background Floating Particles */}
       <HeartParticles />
+      <BirthdayBloomParticles />
 
       {/* Floating Audio Controller */}
       <SoundController />
