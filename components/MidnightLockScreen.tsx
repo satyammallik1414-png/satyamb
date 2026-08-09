@@ -5,14 +5,16 @@ import { Lock, Sparkles, Heart, Clock, ArrowRight, ShieldCheck } from "lucide-re
 
 interface MidnightLockScreenProps {
   playerName: string;
+  unlockTimestamp?: string;
   onUnlock: () => void;
 }
 
-export function MidnightLockScreen({ playerName, onUnlock }: MidnightLockScreenProps) {
-  const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number }>({
+export function MidnightLockScreen({ playerName, unlockTimestamp, onUnlock }: MidnightLockScreenProps) {
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
+    days: 0,
     hours: 0,
     minutes: 0,
-    seconds: 10, // Default 10s demo countdown if not midnight
+    seconds: 0,
   });
 
   const [isRevealed, setIsRevealed] = useState<boolean>(false);
@@ -24,35 +26,37 @@ export function MidnightLockScreen({ playerName, onUnlock }: MidnightLockScreenP
   };
 
   useEffect(() => {
-    // Calculate time until midnight
     const updateCountdown = () => {
       const now = new Date();
-      const midnight = new Date();
-      midnight.setHours(24, 0, 0, 0); // Next midnight
+      const targetDate = unlockTimestamp
+        ? new Date(unlockTimestamp)
+        : new Date("2026-08-10T00:00:00+05:30");
 
-      const diff = midnight.getTime() - now.getTime();
+      const diff = targetDate.getTime() - now.getTime();
 
       if (diff <= 0) {
         triggerMidnightReveal();
       } else {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((diff / 1000 / 60) % 60);
         const seconds = Math.floor((diff / 1000) % 60);
-        setTimeLeft({ hours, minutes, seconds });
+        setTimeLeft({ days, hours, minutes, seconds });
       }
     };
 
     updateCountdown();
     const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [unlockTimestamp]);
 
   const triggerMidnightReveal = () => {
     playSFX("win");
     setIsRevealed(true);
   };
 
-  const isFinal10Seconds = timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds <= 10;
+  const isFinal10Seconds =
+    timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds <= 10 && timeLeft.seconds > 0;
 
   return (
     <div className="fixed inset-0 w-full h-full bg-[#0F0B15] text-white flex flex-col items-center justify-center p-4 sm:p-6 z-50 overflow-hidden select-none">
@@ -103,25 +107,33 @@ export function MidnightLockScreen({ playerName, onUnlock }: MidnightLockScreenP
             </div>
           ) : (
             /* Standard Digital Countdown Clock */
-            <div className="grid grid-cols-3 gap-3 max-w-xs mx-auto py-2">
-              <div className="p-4 rounded-2xl bg-[#2A1B38] border border-[#FF2D75]/40 shadow-inner">
-                <span className="text-3xl sm:text-5xl font-black text-white block">
+            <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto py-2">
+              <div className="p-3 sm:p-4 rounded-2xl bg-[#2A1B38] border border-[#FF2D75]/40 shadow-inner text-center">
+                <span className="text-2xl sm:text-4xl font-black text-white block">
+                  {timeLeft.days < 10 ? `0${timeLeft.days}` : timeLeft.days}
+                </span>
+                <span className="text-[10px] font-bold text-[#FF9CBD] uppercase tracking-wider block mt-1">
+                  DAYS
+                </span>
+              </div>
+              <div className="p-3 sm:p-4 rounded-2xl bg-[#2A1B38] border border-[#FF2D75]/40 shadow-inner text-center">
+                <span className="text-2xl sm:text-4xl font-black text-white block">
                   {timeLeft.hours < 10 ? `0${timeLeft.hours}` : timeLeft.hours}
                 </span>
                 <span className="text-[10px] font-bold text-[#FF9CBD] uppercase tracking-wider block mt-1">
                   HOURS
                 </span>
               </div>
-              <div className="p-4 rounded-2xl bg-[#2A1B38] border border-[#FF2D75]/40 shadow-inner">
-                <span className="text-3xl sm:text-5xl font-black text-white block">
+              <div className="p-3 sm:p-4 rounded-2xl bg-[#2A1B38] border border-[#FF2D75]/40 shadow-inner text-center">
+                <span className="text-2xl sm:text-4xl font-black text-white block">
                   {timeLeft.minutes < 10 ? `0${timeLeft.minutes}` : timeLeft.minutes}
                 </span>
                 <span className="text-[10px] font-bold text-[#FF9CBD] uppercase tracking-wider block mt-1">
                   MINS
                 </span>
               </div>
-              <div className="p-4 rounded-2xl bg-[#2A1B38] border border-[#FF2D75]/40 shadow-inner">
-                <span className="text-3xl sm:text-5xl font-black text-[#FF2D75] block animate-pulse">
+              <div className="p-3 sm:p-4 rounded-2xl bg-[#2A1B38] border border-[#FF2D75]/40 shadow-inner text-center">
+                <span className="text-2xl sm:text-4xl font-black text-[#FF2D75] block animate-pulse">
                   {timeLeft.seconds < 10 ? `0${timeLeft.seconds}` : timeLeft.seconds}
                 </span>
                 <span className="text-[10px] font-bold text-[#FF9CBD] uppercase tracking-wider block mt-1">

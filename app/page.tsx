@@ -26,7 +26,7 @@ import { TreasureChest } from "@/components/tasks/TreasureChest";
 import { GrandFinale } from "@/components/tasks/GrandFinale";
 
 export default function Home() {
-  const [viewState, setViewState] = useState<"midnight_lock" | "landing" | "dashboard" | "task">("landing");
+  const [viewState, setViewState] = useState<"midnight_lock" | "landing" | "dashboard" | "task">("midnight_lock");
   const [currentTask, setCurrentTask] = useState(1);
   const [completedTasks, setCompletedTasks] = useState<number[]>([]);
   const [playerName, setPlayerName] = useState("Satyam's Love ❤️");
@@ -46,6 +46,14 @@ export default function Home() {
         const setData = await setRes.json();
         setSettings(setData);
         if (setData.player_name) setPlayerName(setData.player_name);
+
+        // Lock website if current date/time is before unlock_timestamp (10 Aug 12:00 AM Midnight)
+        if (setData.unlock_enabled === 1 && setData.unlock_timestamp) {
+          const target = new Date(setData.unlock_timestamp);
+          if (new Date() < target) {
+            setViewState("midnight_lock");
+          }
+        }
       }
 
       // 2. Fetch SQLite Progress
@@ -225,10 +233,11 @@ export default function Home() {
 
       {/* Main Game Screen */}
       <div className="flex-1 flex flex-col items-center justify-center p-3 sm:p-4 z-20">
-        {/* 1. MIDNIGHT LOCK & COUNTDOWN REVEAL */}
+        {/* 1. MIDNIGHT LOCK COUNTDOWN */}
         {viewState === "midnight_lock" && (
           <MidnightLockScreen
             playerName={playerName}
+            unlockTimestamp={settings.unlock_timestamp || "2026-08-10T00:00:00+05:30"}
             onUnlock={() => setViewState("landing")}
           />
         )}
