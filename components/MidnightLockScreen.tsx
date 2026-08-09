@@ -143,14 +143,11 @@ export function MidnightLockScreen({ playerName, unlockTimestamp, onUnlock }: Mi
             </div>
           )}
 
-          {/* Test / Trigger Midnight Reveal Button */}
-          <button
-            onClick={triggerMidnightReveal}
-            className="w-full py-4 btn-neon-pink text-base sm:text-lg flex items-center justify-center gap-2 group shadow-xl"
-          >
-            <Sparkles className="w-5 h-5 group-hover:rotate-45 transition-transform" />
-            <span>PREVIEW MIDNIGHT REVEAL 🎆</span>
-          </button>
+          {/* Security Indicator — No preview / no bypass before midnight */}
+          <div className="pt-3 flex items-center justify-center gap-2 text-xs font-bold text-rose-300/80 bg-rose-950/40 py-2.5 px-4 rounded-xl border border-rose-900/50">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>Strictly Locked — Automatically Unlocks at 12:00:00 AM Midnight</span>
+          </div>
         </div>
       ) : (
         /* 🎆 MIDNIGHT REVEAL & HAPPY BIRTHDAY REVEAL */
